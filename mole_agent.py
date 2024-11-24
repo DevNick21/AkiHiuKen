@@ -1,12 +1,13 @@
 import numpy as np
 import time
-import pygame
+# import pygame
 
 class Mole:
     def __init__(self, size, colour, required_strength):
         self.size = None
         self.colour = 'black'
         self.duration = duration    #depends on how long we want the mole to stay o the screen
+        self.required_strength = 0
 
     def get_hit(self, agent_strength):
         return(agent_strength >= self.strength)
