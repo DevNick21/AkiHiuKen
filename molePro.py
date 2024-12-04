@@ -23,10 +23,12 @@ for x in range(GRID_SIZE):
         center_y = y * CELL_SIZE + CELL_SIZE // 2
 
         # Draw a square for each cell
-        pygame.draw.rect(screen, SQUARE_COLOR, (center_x - CELL_SIZE // 2, center_y - CELL_SIZE // 2, CELL_SIZE, CELL_SIZE))
-        
+        pygame.draw.rect(screen, SQUARE_COLOR, (center_x - CELL_SIZE //
+                         2, center_y - CELL_SIZE // 2, CELL_SIZE, CELL_SIZE))
+
         # Draw a circle inside each square
-        pygame.draw.circle(screen, CIRCLE_COLOR, (center_x, center_y), CELL_SIZE // 3)
+        pygame.draw.circle(screen, CIRCLE_COLOR,
+                           (center_x, center_y), CELL_SIZE // 3)
 
 # Update the display once
 pygame.display.flip()
