@@ -54,6 +54,8 @@ episodes = 5000
 # Seed for reproducibility
 to_be = 42
 
+#! EXOGENOIUS INFORMATION, The randomness is introduced in this code to make the agent's behavior more unpredictable
+#! and the environment more challenging
 # Using Psuedo random number generator for reproducibility
 pattern_rng = random.Random(to_be)
 exploration_rng = random.Random(to_be * 2)
@@ -236,6 +238,7 @@ while running:
 # Iterations to improve the agent's performance
     for episode in range(episodes):
 
+        #! STATE VARIABLE: Initial state of the agent which is pseudo-randomly generated at the start of each episode
         # Initialize agent state and pattern index at the start of each episode
         state = state_rng.randint(0, n_states - 1)
         current_pattern_index = 0
@@ -243,6 +246,7 @@ while running:
         # Objective function results to store the total reward obtained in an episode,
         # the number of times the agent failed to match the pattern,
         # and the current epsilon value
+        #! OBJECTIVE FUNCTION: Total reward obtained in an episode and Match failure count
         stats = {"match_fail_count": 0, "reward_per_episode": 0.0,
                  "epsilon": round(epsilon, 3)}
 
@@ -283,6 +287,7 @@ while running:
             # Choosing action based on epsilon-greedy policy
             # Randomly choose action if epsilon is higher than the random num,
             # otherwise choose action with highest Q-value for current state and pattern.
+            #! DECISION VARIABLE: THE AGENT ACT ON THE EPISON-GREEDY POLICY
             if exploration_rng.uniform(0, 1) < epsilon:
                 action = exploration_rng.choice(states)  # Exploration
             else:
@@ -305,6 +310,7 @@ while running:
             # Compute the maximum Q-value for the next state
             next_max = np.max(q_tables[current_pattern_index, new_state, :])
 
+            #! TRANSITION FUNCTION: THE AGENT LEARNS FROM THE REWARD AND UPDATE THE Q-TABLE
             # Update the Q-value for the current state and action using the Q-learning update rule
             q_tables[current_pattern_index, state, action] = old_value + learning_rate * \
                 (reward_obtained + discount_factor * next_max - old_value)
