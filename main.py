@@ -2,6 +2,9 @@
 import numpy as np
 import random
 import pygame
+import pandas as pd
+import time
+import csv
 
 
 # columns represent states, rows represent actions
@@ -132,17 +135,13 @@ def take_action(state, action, pattern):
 DIGLETT_IMAGE = load_image(
     "red.png", (CELL_SIZE // 2, CELL_SIZE // 2), (0, 0, 255))
 
-# Initialize screen, fill it with the background color, and set the caption
-screen = pygame.display.set_mode((SCREEN_SIZE, SCREEN_SIZE))
-pygame.display.set_caption("AkiHiuKen")
-screen.fill(BACKGROUND_COLOR)
-
-
 # Cell class representing a hole in the Whack-A-Mole game
 # It has method to draw the cell on the game screen and
 # show a mole if the cell contains a mole
 # It also has methods to toggle the cell based on whether
 # it contains a mole and whether it has been hit or missed
+
+
 class Cell:
     def __init__(self, x, y):
         """
@@ -220,12 +219,15 @@ cells = [[Cell(x * CELL_SIZE, y * CELL_SIZE)
 # using the clock to control the frame rate
 clock = pygame.time.Clock()
 mole_timer = 0
-# hammer_timer = 0
-# mole_interval = 10  # Mole pops every second
-# hammer_interval = 1000
+all_stats = []
 
 # Boolean flag to indicate whether the game is running or not
 running = True
+
+# Initialize screen, fill it with the background color, and set the caption
+screen = pygame.display.set_mode((SCREEN_SIZE, SCREEN_SIZE))
+pygame.display.set_caption("AkiHiuKen")
+screen.fill(BACKGROUND_COLOR)
 
 # Game loop (Including visual and AI logic)
 while running:
@@ -242,13 +244,14 @@ while running:
         # Initialize agent state and pattern index at the start of each episode
         state = state_rng.randint(0, n_states - 1)
         current_pattern_index = 0
+        start_time = time.time()
 
         # Objective function results to store the total reward obtained in an episode,
         # the number of times the agent failed to match the pattern,
         # and the current epsilon value
         #! OBJECTIVE FUNCTION: Total reward obtained in an episode and Match failure count
-        stats = {"match_fail_count": 0, "reward_per_episode": 0.0,
-                 "epsilon": round(epsilon, 3)}
+        stats = {"Episode": episode + 1, "match_fail_count": 0, "reward_per_episode": 0.0,
+                 "epsilon": round(epsilon, 3), "time_per_episode": 0.0}
 
         # Boolean flag to indicate whether an episode is done or not
         done = False
@@ -258,13 +261,11 @@ while running:
             # Get the current mole position in the pattern list
             pattern_position = patterns[current_pattern_index]
 
-            # Visualization breaks in speeds, so the learning can be seen
-            if episode < 2:
-                mole_timer += clock.tick(10)
-            elif episode > 4000:
-                mole_timer += clock.tick(10)
-            else:  # Frame rate adjustment
-                mole_timer += clock.tick(0)  # Frame rate adjustment
+            # TODO: Visualization breaks in speeds, so the learning can be seen
+            # if episode < 3 or episode > 4500:
+            #     mole_timer += clock.tick(30)
+            # else:  # Frame rate adjustment
+            #     mole_timer += clock.tick(0)  # Frame rate adjustment
 
             # Resetting the Moles per frame rate
             for row in cells:
@@ -347,7 +348,9 @@ while running:
             pygame.display.flip()
 
         # Printing episode statistics and epsilon value
-        print(f"Episode {episode+1}: {stats}\n, {round(epsilon, 2)}")
+        stats["time_per_episode"] = round(time.time() - start_time, 4)
+        all_stats.append(stats)
+        print(f"{stats}\n")
 
         # Reducing epsilon for next episode
         epsilon = max(min_epsilon, epsilon * epsilon_decay)
@@ -355,5 +358,31 @@ while running:
     # Early stopping condition: if min epsilon is reached, stop the training
         if epsilon == min_epsilon:
             running = False
+            break
 
 pygame.quit()
+
+# Saving the Q-table to a CSV file for analysis
+data = []
+for pattern_index in range(q_tables.shape[0]):
+    for state in range(q_tables.shape[1]):
+        for action in range(q_tables.shape[2]):
+            data.append([pattern_index, state, action,
+                        q_tables[pattern_index, state, action]])
+
+q_tables_df = pd.DataFrame(
+    data, columns=["Pattern Index", "State", "Action", "Q-Value"])
+
+q_tables_df.to_csv("q_tables.csv", index=False)
+
+# Saving the episode statistics to a CSV file for analysis
+csv_file = "episode_stats.csv"
+with open(csv_file, mode="w", newline="") as file:
+    writer = csv.DictWriter(file, fieldnames=stats.keys())
+
+    # Write the header row
+    writer.writeheader()
+
+    # Write each episode's stats as a new row
+    for stats in all_stats:
+        writer.writerow(stats)
