@@ -14,9 +14,12 @@ GRID_SIZE = 6
 # Reward and penalty constants
 REWARD = 1.0
 PENALTY = -1.0
+COMPLETION_REWARD = 2.0
 
 # Idle penalty incase agent decides to take no action
 IDLE_PENALTY = -0.5
+
+# Visual constants
 SCREEN_SIZE = 600
 CELL_SIZE = SCREEN_SIZE // GRID_SIZE
 BACKGROUND_COLOR = (185, 122, 87)  # Light brown
@@ -71,9 +74,8 @@ patterns = [pattern_rng.randint(0, GRID_SIZE*GRID_SIZE - 1)
 # States (Indexes representing positions in the grid)
 states = [x for x in range(0, n_states)]
 
+
 # Helper function load image from a file and resize it if necessary
-
-
 def load_image(image_path, size=None, default_color=None):
     """
     Load an image from the specified path, and optionally resize it and fill it with a default color if the image loading fails.
@@ -98,7 +100,7 @@ def load_image(image_path, size=None, default_color=None):
         return img
 
 
-def take_action(state, action, pattern):
+def take_action(state, action, pattern, current_pattern_index):
     """
     Simulates taking an action in the Whack-A-Mole game and calculates the reward.
 
@@ -123,6 +125,9 @@ def take_action(state, action, pattern):
     if new_state == pattern:
         reward_gotten += REWARD
         match_index = True
+        # If the pattern is completed, give a completion reward so the agent learns to complete the pattern
+        if current_pattern_index == len(patterns) - 1:
+            reward_gotten += COMPLETION_REWARD
     elif new_state == state:
         reward_gotten += IDLE_PENALTY
     else:
@@ -298,7 +303,17 @@ while running:
             # Take action function to get new state, reward,
             # and whether the action matches the pattern state or not
             new_state, reward_obtained, match = take_action(
-                state, action, pattern_position)
+                state, action, pattern_position, current_pattern_index)
+
+            # resetting the current agent cell color and position for the change (hit or miss)
+            if current_agent_cell:
+                current_agent_cell.reset_color()
+
+            # Setting the new state of the agent to the new state
+            for row in cells:
+                for cell in row:
+                    if cell.cell_index == states[new_state]:
+                        current_agent_cell = cell
 
             # Adding the stats to the episode statistics
             stats["reward_per_episode"] += reward_obtained
@@ -315,16 +330,6 @@ while running:
             # Update the Q-value for the current state and action using the Q-learning update rule
             q_tables[current_pattern_index, state, action] = old_value + learning_rate * \
                 (reward_obtained + discount_factor * next_max - old_value)
-
-            # resetting the current agent cell color and position for the change (hit or miss)
-            if current_agent_cell:
-                current_agent_cell.reset_color()
-
-            # Setting the new state of the agent to the new state
-            for row in cells:
-                for cell in row:
-                    if cell.cell_index == states[new_state]:
-                        current_agent_cell = cell
 
             # Checking if the action matches the pattern state or not,
             # and updating the state accordingly.
