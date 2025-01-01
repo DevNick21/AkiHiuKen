@@ -62,7 +62,7 @@ def q_learning(learning_rate, discount_factor):
     # Seed for reproducibility
     to_be = 42
 
-    #! EXOGENOIUS INFORMATION, The randomness is introduced in this code to
+    #! EXOGENOUS INFORMATION, The randomness is introduced in this code to
     #! make the agent's behavior more unpredictable and the environment more challenging
     # Using Psuedo random number generator for reproducibility
     pattern_rng = random.Random(to_be)
@@ -379,10 +379,10 @@ def q_learning(learning_rate, discount_factor):
         data, columns=["Pattern Index", "State", "Action", "Q-Value"])
     # Creating a directory for the results
     q_tables_df.to_csv(
-        f"learning_rate_{learning_rate}/discount_factor_{discount_factor}/q_tables - lr{learning_rate}.csv", index=False)
+        f"learning_rate_{learning_rate}/discount_factor_{discount_factor}/q_tables.csv", index=False)
 
     # Saving the episode statistics to a CSV file for analysis
-    csv_file = f"learning_rate_{learning_rate}/discount_factor_{discount_factor}/episode_stats - lr{learning_rate}.csv"
+    csv_file = f"learning_rate_{learning_rate}/discount_factor_{discount_factor}/episode_stats.csv"
     with open(csv_file, mode="w", newline="") as file:
         writer = csv.DictWriter(file, fieldnames=stats.keys())
 
@@ -417,4 +417,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    q_learning(0.1, 0.1)

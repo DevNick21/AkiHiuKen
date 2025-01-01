@@ -26,20 +26,20 @@ if check == 'no':
         sns.lineplot(data=averages, x='learning_rate',
                      y=f'{column}', hue='discount_factor')
         plt.title(
-            f'Average {"".join(column_name[1:]).capitalize()} by Learning Rate and Discount Factor')
+            f'Average {" ".join(column_name[1:]).capitalize()} by Learning Rate and Discount Factor')
         plt.xlabel('Learning Rate')
-        plt.ylabel(f'Average {"".join(column_name[1:]).capitalize()}')
-        plt.savefig(f'Average {"".join(column_name[1:]).capitalize()}')
+        plt.ylabel(f'Average {" ".join(column_name[1:]).capitalize()}')
+        plt.savefig(f'plots/Average {"_".join(column_name[1:]).capitalize()}')
         plt.show()
 elif check == 'yes':
     best_df = pd.read_csv(
-        'learning_rate_0.1/discount_factor_0.1/episode_stats - lr0.1.csv')
+        'learning_rate_0.1/discount_factor_0.1/episode_stats.csv')
     plt.figure(figsize=(10, 6))
     plt.scatter(best_df['epsilon'], best_df['match_fail_count'],
                 alpha=0.5, s=10, color='r')
     plt.title('Epsilon vs Total Match Fail Count')
     plt.xlabel('Epsilon')
     plt.ylabel('Reward')
-    plt.savefig('Total Match Fail Count for best lr and dfac')
+    plt.savefig('plots/Total_match_fail_Count_for_best')
     plt.grid(True)
     plt.show()
