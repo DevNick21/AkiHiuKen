@@ -20,7 +20,7 @@ Go to the project directory
 Install dependencies
 
 ```bash
-  pip install numpy matplotlib pandas pygame 
+  pip install numpy==1.26.4 matplotlib==3.9.2 pandas==2.2.3 pygame==2.6.1 seaborn==0.13.2
 ```
 
 
